@@ -16,6 +16,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 import 'shortcut_delegate.dart';
+import 'embed_table_widget.dart';
 
 typedef OnQuillSave = void Function(String, String, String);
 typedef OnQuillPreviewImageSave = void Function(Uint8List);
@@ -28,6 +29,7 @@ class Editor extends StatefulWidget {
       this.savedData = "",
       this.savePreview,
       this.onSelectImage,
+      this.onInsertTable,
       this.shortcutDelegate = const ShortcutDelegate(
         insertImage: "/image",
         insertEmoji: "/emoji",
@@ -37,6 +39,7 @@ class Editor extends StatefulWidget {
   final OnQuillPreviewImageSave? savePreview;
   final ShortcutDelegate shortcutDelegate;
   final OnSelectImage? onSelectImage;
+  final VoidCallback? onInsertTable;
 
   @override
   State<Editor> createState() => EditorState();
@@ -104,6 +107,24 @@ class EditorState extends State<Editor> {
               final length0 = _controller.length;
               if (index == index0 && length0 == length) {}
             });
+          } else if (_controller.document
+                  .queryChild(_controller.index)
+                  .node
+                  ?.toPlainText()
+                  .replaceAll("\n", "") ==
+              widget.shortcutDelegate.insertTable) {
+            final index = _controller.index;
+            final length = _controller.length;
+            await Future.delayed(const Duration(milliseconds: 1500))
+                .then((value) {
+              final index0 = _controller.index;
+              final length0 = _controller.length;
+              if (index == index0 && length0 == length) {
+                if (widget.onInsertTable != null) {
+                  widget.onInsertTable!();
+                }
+              }
+            });
           }
         } catch (_) {}
       },
@@ -157,6 +178,7 @@ class EditorState extends State<Editor> {
           ),
         ),
         embedBuilders: [
+          TableEmbedBuilder(),
           ...FlutterQuillEmbeds.editorBuilders(
             imageEmbedConfigurations:
                 const QuillEditorImageEmbedConfigurations(),
@@ -184,6 +206,29 @@ class EditorState extends State<Editor> {
     // print(d.toString());
     _controller.insertImageBlock(imageSource: p);
     _controller.moveCursorToEnd();
+  }
+
+  insertTable({int rows = 2, int columns = 2}) {
+    try {
+      final block = BlockEmbed.custom(
+        TableBlockEmbed.fromDocument(
+            Document()..insert(0, jsonEncode({"1": "1", "2": "2"}))),
+      );
+
+      _controller.replaceText(
+          _controller.index - widget.shortcutDelegate.tableShortCutLength,
+          widget.shortcutDelegate.tableShortCutLength,
+          block,
+          TextSelection(
+              baseOffset: _controller.index -
+                  widget.shortcutDelegate.tableShortCutLength,
+              extentOffset: _controller.index -
+                  widget.shortcutDelegate.tableShortCutLength));
+
+      _controller.moveCursorToEnd();
+    } catch (e) {
+      print(e);
+    }
   }
 
   /// When inserting an image
@@ -312,16 +357,9 @@ class EditorState extends State<Editor> {
               ),
             ),
           ),
-          kIsWeb
-              ? Expanded(
-                  child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                  child: quillToolbar,
-                ))
-              : Container(
-                  child: quillToolbar,
-                )
+          Container(
+            child: quillToolbar,
+          )
         ],
       ),
     );

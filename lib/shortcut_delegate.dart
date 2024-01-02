@@ -5,12 +5,11 @@ class ShortcutDelegate {
   final String insertEmoji;
   int get emojiShortCutLength => insertEmoji.length;
 
-  const ShortcutDelegate({
-    this.insertImage = "/image",
-    this.insertEmoji = "/emoji",
-  });
+  final String insertTable;
+  int get tableShortCutLength => insertTable.length;
 
-  int get maxLen => [insertImage, insertEmoji]
-      .reduce((a, b) => a.length > b.length ? a : b)
-      .length;
+  const ShortcutDelegate(
+      {this.insertImage = "/image",
+      this.insertEmoji = "/emoji",
+      this.insertTable = "/table"});
 }

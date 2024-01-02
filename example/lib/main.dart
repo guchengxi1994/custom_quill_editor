@@ -43,6 +43,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Editor(
         key: globalKey,
+        onInsertTable: () {
+          globalKey.currentState!.insertTable();
+        },
         onSelectImage: () async {
           await showGeneralDialog(
               barrierDismissible: true,
