@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:custom_quill_editor/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -29,7 +30,6 @@ class Editor extends StatefulWidget {
       this.savedData = "",
       this.savePreview,
       this.onSelectImage,
-      this.onInsertTable,
       this.shortcutDelegate = const ShortcutDelegate(
         insertImage: "/image",
         insertEmoji: "/emoji",
@@ -39,7 +39,6 @@ class Editor extends StatefulWidget {
   final OnQuillPreviewImageSave? savePreview;
   final ShortcutDelegate shortcutDelegate;
   final OnSelectImage? onSelectImage;
-  final VoidCallback? onInsertTable;
 
   @override
   State<Editor> createState() => EditorState();
@@ -105,7 +104,7 @@ class EditorState extends State<Editor> {
                 .then((value) {
               final index0 = _controller.index;
               final length0 = _controller.length;
-              if (index == index0 && length0 == length) {}
+              if (index == index0 && length0 == length && !isDialogShow) {}
             });
           } else if (_controller.document
                   .queryChild(_controller.index)
@@ -116,13 +115,25 @@ class EditorState extends State<Editor> {
             final index = _controller.index;
             final length = _controller.length;
             await Future.delayed(const Duration(milliseconds: 1500))
-                .then((value) {
+                .then((value) async {
               final index0 = _controller.index;
               final length0 = _controller.length;
-              if (index == index0 && length0 == length) {
-                if (widget.onInsertTable != null) {
-                  widget.onInsertTable!();
-                }
+              if (index == index0 && length0 == length && !isDialogShow) {
+                isDialogShow = true;
+                final (int, int)? r = await showGeneralDialog(
+                    context: context,
+                    pageBuilder: (c, _, __) {
+                      return Center(
+                        child: InsertTableDialog(),
+                      );
+                    });
+
+                isDialogShow = false;
+
+                insertTable(rows: r!.$1, columns: r.$2);
+                // if (widget.onInsertTable != null) {
+                //   widget.onInsertTable!();
+                // }
               }
             });
           }
@@ -210,9 +221,11 @@ class EditorState extends State<Editor> {
 
   insertTable({int rows = 2, int columns = 2}) {
     try {
+      final m = emptyTableToJson(rows, columns);
+      // print(m);
+
       final block = BlockEmbed.custom(
-        TableBlockEmbed.fromDocument(
-            Document()..insert(0, jsonEncode({"1": "1", "2": "2"}))),
+        TableBlockEmbed.fromDocument(Document()..insert(0, jsonEncode(m))),
       );
 
       _controller.replaceText(
@@ -226,8 +239,10 @@ class EditorState extends State<Editor> {
                   widget.shortcutDelegate.tableShortCutLength));
 
       _controller.moveCursorToEnd();
-    } catch (e) {
-      print(e);
+    } catch (e, s) {
+      if (kDebugMode) {
+        print(s);
+      }
     }
   }
 

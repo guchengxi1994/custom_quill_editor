@@ -43,9 +43,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Editor(
         key: globalKey,
-        onInsertTable: () {
-          globalKey.currentState!.insertTable();
-        },
         onSelectImage: () async {
           await showGeneralDialog(
               barrierDismissible: true,
@@ -63,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 r"D:\github_repo\custom_quill_editor\example\images\1.png")
                       ],
                       onSelect: (e) {
-                        print(e.name);
+                        // print(e.name);
 
                         globalKey.currentState!.insertImage(e.path!);
                       },
