@@ -30,10 +30,7 @@ class Editor extends StatefulWidget {
       this.savedData = "",
       this.savePreview,
       this.onSelectImage,
-      this.shortcutDelegate = const ShortcutDelegate(
-        insertImage: "/image",
-        insertEmoji: "/emoji",
-      )});
+      this.shortcutDelegate = const ShortcutDelegate()});
   final OnQuillSave? saveToJson;
   final String savedData;
   final OnQuillPreviewImageSave? savePreview;
@@ -216,7 +213,7 @@ class EditorState extends State<Editor> {
 
     // print(d.toString());
     _controller.insertImageBlock(imageSource: p);
-    _controller.moveCursorToEnd();
+    _controller.moveCursorToPosition(_controller.index + p.length);
   }
 
   insertTable({int rows = 2, int columns = 2}) {
@@ -238,7 +235,8 @@ class EditorState extends State<Editor> {
               extentOffset: _controller.index -
                   widget.shortcutDelegate.tableShortCutLength));
 
-      _controller.moveCursorToEnd();
+      _controller.moveCursorToPosition(
+          _controller.index + block.data.toString().length);
     } catch (e, s) {
       if (kDebugMode) {
         print(s);
