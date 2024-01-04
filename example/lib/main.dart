@@ -1,6 +1,7 @@
 import 'package:custom_quill_editor/editor.dart';
-import 'package:custom_quill_editor/editor_insert_listview.dart';
-import 'package:custom_quill_editor/image_provider.dart';
+import 'package:custom_quill_editor/embeds/image/editor_insert_listview.dart';
+import 'package:custom_quill_editor/embeds/image/image_provider.dart';
+
 import 'package:flutter/material.dart';
 
 void main() {

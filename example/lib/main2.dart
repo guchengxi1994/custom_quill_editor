@@ -1,5 +1,5 @@
 import 'package:custom_quill_editor/editor.dart';
-import 'package:custom_quill_editor/embeds/custom_table_widget.dart';
+import 'package:custom_quill_editor/embeds/table/custom_table_widget.dart';
 import 'package:flutter/material.dart';
 
 void main() {

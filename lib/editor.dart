@@ -16,7 +16,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 import 'shortcut_delegate.dart';
-import 'embeds/embed_table_widget.dart';
+import 'embeds/table/embed_table_widget.dart';
 
 typedef OnQuillSave = void Function(String, String, String);
 typedef OnQuillPreviewImageSave = void Function(Uint8List);
