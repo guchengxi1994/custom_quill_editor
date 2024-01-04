@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:custom_quill_editor/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -17,7 +16,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 import 'shortcut_delegate.dart';
-import 'embed_table_widget.dart';
+import 'embeds/embed_table_widget.dart';
 
 typedef OnQuillSave = void Function(String, String, String);
 typedef OnQuillPreviewImageSave = void Function(Uint8List);
@@ -117,8 +116,10 @@ class EditorState extends State<Editor> {
               final length0 = _controller.length;
               if (index == index0 && length0 == length && !isDialogShow) {
                 isDialogShow = true;
-                final (int, int)? r = await showGeneralDialog(
+                final String? r = await showGeneralDialog(
                     context: context,
+                    barrierLabel: "insert table",
+                    barrierDismissible: true,
                     pageBuilder: (c, _, __) {
                       return Center(
                         child: InsertTableDialog(),
@@ -126,8 +127,10 @@ class EditorState extends State<Editor> {
                     });
 
                 isDialogShow = false;
+                if (r != null) {
+                  insertTable(r);
+                }
 
-                insertTable(rows: r!.$1, columns: r.$2);
                 // if (widget.onInsertTable != null) {
                 //   widget.onInsertTable!();
                 // }
@@ -216,13 +219,12 @@ class EditorState extends State<Editor> {
     _controller.moveCursorToPosition(_controller.index + p.length);
   }
 
-  insertTable({int rows = 2, int columns = 2}) {
+  insertTable(String s) {
     try {
-      final m = emptyTableToJson(rows, columns);
       // print(m);
 
       final block = BlockEmbed.custom(
-        TableBlockEmbed.fromDocument(Document()..insert(0, jsonEncode(m))),
+        TableBlockEmbed.fromDocument(Document()..insert(0, s)),
       );
 
       _controller.replaceText(
